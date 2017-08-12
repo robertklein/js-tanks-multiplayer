@@ -42,6 +42,9 @@ var g = {
             return Math.max(0, t.h);
         }
     },
+    sound: {
+        playing_stone_crash: 0
+    },
     e: [
         {x: 400, y: 400, r: 50},
         {x: 500, y: 400, r: 50},
@@ -233,10 +236,17 @@ var g = {
                 var y2 = g.e[i].y;
                 var dist = Math.sqrt(Math.pow(Math.abs(x1-x2), 2) + Math.pow(Math.abs(y1-y2), 2));
                 //console.log(i + ': ' + dist)
-                if(dist < (28 + g.e[i].r)){
+                if(dist < (45 + 0.55*g.e[i].r)){
                     g.o.x = g.o.ox;
                     g.o.y = g.o.oy;
                     g.o.acc = 0;
+                    if(!g.sound.playing_stone_crash){
+                        var snd = new Audio("stone_crash.mp3");
+                        snd.volume = 0.2;
+                        snd.play();
+                        setTimeout(function(){ g.sound.playing_stone_crash = 0; }, 1000);
+                    }
+                    g.sound.playing_stone_crash = 1;
                 }
             }
             
@@ -278,8 +288,7 @@ var g = {
                 e.preventDefault();
                 //var snd = new Audio("explosion.mp3");
                 if(g.o.firing) return false;
-                g.o.firing = 1;
-                setTimeout(function(){ g.o.firing = 0; }, 2000);
+                g.o.firing = 1;                setTimeout(function(){ g.o.firing = 0; }, 2000);
 
                 g.o.context.beginPath();
                 g.o.context.strokeStyle = 'rgba(255,0,0,0.9)';
@@ -299,7 +308,7 @@ var g = {
                             g.t.splice(ri[i], 1);
                             g.tank.add();
 
-                            setTimeout(function(){ 
+                            setTimeout(function(){
                                 var snd = new Audio("explosion.mp3");
                                 snd.volume = 1;
                                 snd.play();
