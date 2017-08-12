@@ -45,12 +45,21 @@ var g = {
     sound: {
         playing_stone_crash: 0
     },
-    e: [
-        {x: 400, y: 400, r: 50},
-        {x: 500, y: 400, r: 50},
-        {x: 660, y: 400, r: 80},
-        {x: 400, y: 500, r: 120}
-    ],
+    e: {
+        stone: [
+            {x: 400, y: 400, r: 50},
+            {x: 500, y: 400, r: 50},
+            {x: 660, y: 400, r: 80},
+            {x: 400, y: 500, r: 120}
+        ],
+        tree: [
+            {x: 900, y: 280, r: 150},
+            {x: 700, y: 660, r: 90},
+            {x: 1300, y: 300, r: 130},
+            {x: 1190, y: 620, r: 110},
+            {x: 1470, y: 780, r: 140},
+        ]
+    },
     init: function(){
         g.o.canvas = document.getElementById("canvas");
         g.o.context = g.o.canvas.getContext("2d");
@@ -65,6 +74,10 @@ var g = {
         }
         g.o.stone = new Image();
         g.o.stone.src="stone.png";
+        g.o.explosion = new Image();
+        g.o.explosion.src="explosion.png";
+        g.o.tree = new Image();
+        g.o.tree.src="tree1.png";
 
         window.addEventListener("keydown", g.handlers.keypress, false);
         window.addEventListener("keyup", g.handlers.keyup, false);
@@ -130,7 +143,7 @@ var g = {
 
                 g.o.context.save();
                 g.o.context.beginPath();
-                g.o.context.strokeStyle = 'rgba(0,255,0,0.8)';
+                g.o.context.strokeStyle = 'rgba(0,255,0,0.35)';
                 g.o.context.lineWidth = 8;
                 g.o.context.moveTo(x - 50, y - 70);
                 g.o.context.lineTo(x - 50 + (h * 100), y - 70);
@@ -207,15 +220,21 @@ var g = {
             }
         },
         element: {
-            all: function(){
-                for(var i in g.e){
-                    this.stone(i);
+            all: function(top){
+                for(var j in g.e){
+                    if(typeof top === 'undefined' || (typeof top !== 'undefined' && top && ['tree'].indexOf(j)!==-1) || (typeof top !== 'undefined' && !top && ['tree'].indexOf(j)===-1)){
+                        for(var i in g.e[j]){
+                            this.one(j, g.e[j][i]);
+                        }
+                    }
                 }
             },
-            stone: function(i){
+            one: function(cat, obj){
                 g.o.context.save();
-                g.o.context.translate(g.e[i].x, g.e[i].y);
-                g.o.context.drawImage(g.o.stone, -(g.e[i].r), -(g.e[i].r), g.e[i].r*2, g.e[i].r*2);
+                if(cat == 'tree') g.o.context.globalAlpha = 0.75;
+                g.o.context.translate(obj.x, obj.y);
+                g.o.context.drawImage(g.o[cat], -(obj.r), -(obj.r), obj.r*2, obj.r*2);
+                if(cat == 'tree') g.o.context.globalAlpha = 1;
                 g.o.context.restore();
             }
         },
@@ -231,12 +250,12 @@ var g = {
             g.o.y += (g.o.speed*g.o.acc*g.o.mod) * Math.sin(Math.PI/180 * g.o.angle);
             var x1 = g.o.x;
             var y1 = g.o.y;
-            for(var i in g.e){
-                var x2 = g.e[i].x;
-                var y2 = g.e[i].y;
+            for(var i in g.e.stone){
+                var x2 = g.e.stone[i].x;
+                var y2 = g.e.stone[i].y;
                 var dist = Math.sqrt(Math.pow(Math.abs(x1-x2), 2) + Math.pow(Math.abs(y1-y2), 2));
                 //console.log(i + ': ' + dist)
-                if(dist < (45 + 0.55*g.e[i].r)){
+                if(dist < (45 + 0.55*g.e.stone[i].r)){
                     g.o.x = g.o.ox;
                     g.o.y = g.o.oy;
                     g.o.acc = 0;
@@ -250,9 +269,10 @@ var g = {
                 }
             }
             
-            g.draw.element.all();
+            g.draw.element.all(0);
             g.draw.tank.all();
             g.draw.tank.my();
+            g.draw.element.all(1);
         }
     },
     handlers: {
@@ -313,6 +333,12 @@ var g = {
                                 snd.volume = 1;
                                 snd.play();
                             }, 500);
+                        } else {
+                            setTimeout(function(){
+                                var snd = new Audio("fire_impact"+Math.ceil(Math.random()*2)+".mp3");
+                                snd.volume = 0.6;
+                                snd.play();
+                            }, 200);
                         }
                     }
                 }
