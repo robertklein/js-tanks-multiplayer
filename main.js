@@ -42,7 +42,12 @@ var g = {
             return Math.max(0, t.h);
         }
     },
-    e: [],
+    e: [
+        {x: 400, y: 400, r: 50},
+        {x: 500, y: 400, r: 50},
+        {x: 660, y: 400, r: 80},
+        {x: 400, y: 500, r: 120}
+    ],
     init: function(){
         g.o.canvas = document.getElementById("canvas");
         g.o.context = g.o.canvas.getContext("2d");
@@ -50,6 +55,13 @@ var g = {
         g.o.tank.src="tank_body.png";
         g.o.turret = new Image();
         g.o.turret.src="tank_turret.png";
+        g.o.background = new Image();
+        g.o.background.src = "desert.jpg";
+        g.o.background.onload = function(){
+            g.o.context.drawImage(g.o.background,0,0);   
+        }
+        g.o.stone = new Image();
+        g.o.stone.src="stone.png";
 
         window.addEventListener("keydown", g.handlers.keypress, false);
         window.addEventListener("keyup", g.handlers.keyup, false);
@@ -102,11 +114,13 @@ var g = {
 
                 if(primary){
                     g.o.context.beginPath();
-                    g.o.context.strokeStyle = 'rgba(255,0,0,0.8)';
+                    g.o.context.lineWidth = 2;
+                    g.o.context.strokeStyle = 'rgba(255,255,255,1)';
                     g.o.context.setLineDash([5, 50]);
                     g.o.context.moveTo(0, 0);
                     g.o.context.lineTo(2000, 0);
                     g.o.context.stroke();
+                    g.o.context.lineWidth = 1;
                 }
 
                 g.o.context.restore();
@@ -190,18 +204,43 @@ var g = {
             }
         },
         element: {
-            wall: function(){
-
+            all: function(){
+                for(var i in g.e){
+                    this.stone(i);
+                }
+            },
+            stone: function(i){
+                g.o.context.save();
+                g.o.context.translate(g.e[i].x, g.e[i].y);
+                g.o.context.drawImage(g.o.stone, -(g.e[i].r), -(g.e[i].r), g.e[i].r*2, g.e[i].r*2);
+                g.o.context.restore();
             }
         },
         frame: function(){
             g.o.context.clearRect(0, 0, 1870, 950);
+            g.o.context.drawImage(g.o.background,0,0);
 
             g.keys.handle();
 
+            g.o.ox = g.o.x;
+            g.o.oy = g.o.y;
             g.o.x += (g.o.speed*g.o.acc*g.o.mod) * Math.cos(Math.PI/180 * g.o.angle);
             g.o.y += (g.o.speed*g.o.acc*g.o.mod) * Math.sin(Math.PI/180 * g.o.angle);
+            var x1 = g.o.x;
+            var y1 = g.o.y;
+            for(var i in g.e){
+                var x2 = g.e[i].x;
+                var y2 = g.e[i].y;
+                var dist = Math.sqrt(Math.pow(Math.abs(x1-x2), 2) + Math.pow(Math.abs(y1-y2), 2));
+                //console.log(i + ': ' + dist)
+                if(dist < (28 + g.e[i].r)){
+                    g.o.x = g.o.ox;
+                    g.o.y = g.o.oy;
+                    g.o.acc = 0;
+                }
+            }
             
+            g.draw.element.all();
             g.draw.tank.all();
             g.draw.tank.my();
         }
