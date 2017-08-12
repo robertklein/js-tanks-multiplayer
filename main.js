@@ -20,30 +20,21 @@ var g = {
         interval: null,
         target: {x:450, y:230, dist:0, angle:0}
     },
-    t: [
-        {
-            x:400,
-            y:500,
-            a:100,
-            ta:100,
-            h:1,
-            s: null
-        },{
-            x:900,
-            y:300,
-            a:300,
-            ta:40,
-            h:1,
-            s: null
-        },{
-            x:1630,
-            y:200,
-            a:250,
-            ta:90,
-            h:1,
-            s: null
+    t: [],
+    tank: {
+        add: function(){
+            setTimeout(function(){
+                g.t.push({
+                    x: Math.floor(Math.random() * 1800) + 100,
+                    y: Math.floor(Math.random() * 900) + 100,
+                    a: Math.floor(Math.random() * 359) + 0,
+                    ta:0,
+                    h:1,
+                    s: null
+                });
+            }, Math.floor(Math.random() * 10)*1000);
         }
-    ],
+    },
     e: [],
     init: function(){
         g.o.canvas = document.getElementById("canvas");
@@ -56,9 +47,8 @@ var g = {
         window.addEventListener("keydown", g.handlers.keypress, false);
         window.addEventListener("keyup", g.handlers.keyup, false);
 
-        // setTimeout(function(){ g.draw.frame(); }, 100);
-        // setTimeout(function(){ g.draw.frame(); }, 3000);
-        // setTimeout(function(){ g.draw.frame(); }, 6000);
+        for(var i = 0; i<10; i++) g.tank.add();
+
         g.o.move = setInterval(function(){
             g.draw.frame();
         }, 30);
@@ -89,13 +79,13 @@ var g = {
     },
     draw: {
         tank: {
-            my: function(){
+            _one: function(x, y, a, ta, h){
                 g.o.context.save();
 
-                g.o.context.translate(g.o.x, g.o.y);
-                g.o.context.rotate(Math.PI/180 * g.o.angle);
+                g.o.context.translate(x, y);
+                g.o.context.rotate(Math.PI/180 * a);
                 g.o.context.drawImage(g.o.tank, -(g.o.tank.width/2), -(g.o.tank.height/2));
-                g.o.context.rotate(Math.PI/180 * g.o.turret_angle);
+                g.o.context.rotate(Math.PI/180 * ta);
                 g.o.context.drawImage(g.o.turret, -(g.o.tank.width/2), -(g.o.tank.height/2));
 
                 g.o.context.beginPath();
@@ -110,10 +100,13 @@ var g = {
                 g.o.context.beginPath();
                 g.o.context.strokeStyle = 'rgba(0,255,0,0.8)';
                 g.o.context.lineWidth = 8;
-                g.o.context.moveTo(g.o.x - 50, g.o.y - 70);
-                g.o.context.lineTo(g.o.x - 50 + (g.o.health * 100), g.o.y - 70);
+                g.o.context.moveTo(x - 50, y - 70);
+                g.o.context.lineTo(x - 50 + (h * 100), y - 70);
                 g.o.context.stroke();
                 g.o.context.restore();
+            },
+            my: function(){
+                this._one(g.o.x, g.o.y, g.o.angle, g.o.turret_angle, g.o.health);
             },  
             all: function(){
                 for(var k in g.t){
@@ -122,15 +115,7 @@ var g = {
                 }
             },
             one: function(x, y, a, ta, h, i){
-                g.o.context.save();
-
-                g.o.context.translate(x, y);
-                g.o.context.rotate(Math.PI/180 * a);
-                g.o.context.drawImage(g.o.tank, -(g.o.tank.width/2), -(g.o.tank.height/2));
-                g.o.context.rotate(Math.PI/180 * ta);
-                g.o.context.drawImage(g.o.turret, -(g.o.tank.width/2), -(g.o.tank.height/2));
-
-                g.o.context.restore();
+                this._one(x, y, a, ta, h);
 
                 g.o.context.beginPath();
                 g.o.context.strokeStyle = 'rgba(0,0,0,0.1)';
@@ -183,16 +168,6 @@ var g = {
                 g.o.context.lineTo(x4, y4);
                 g.o.context.stroke();
                 g.o.context.lineWidth = 1;
-
-
-                g.o.context.save();
-                g.o.context.beginPath();
-                g.o.context.strokeStyle = 'rgba(0,255,0,0.8)';
-                g.o.context.lineWidth = 8;
-                g.o.context.moveTo(x - 50, y - 70);
-                g.o.context.lineTo(x - 50 + (h * 100), y - 70);
-                g.o.context.stroke();
-                g.o.context.restore();
             }
         },
         element: {
@@ -260,17 +235,7 @@ var g = {
                 if(ri.length){
                     for(var i = ri.length - 1; i >= 0; i--){
                         g.t.splice(ri[i], 1);
-
-                        setTimeout(function(){
-                            g.t.push({
-                                x: Math.floor(Math.random() * 1800) + 100,
-                                y: Math.floor(Math.random() * 900) + 100,
-                                a: Math.floor(Math.random() * 359) + 0,
-                                ta:0,
-                                h:1,
-                                s: null
-                            });
-                        }, Math.floor(Math.random() * 10)*1000);
+                        g.tank.add();
                     }
                 }
 
