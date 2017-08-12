@@ -259,11 +259,18 @@ var g = {
                         if(!g.tank.hit(ri[i])){
                             g.t.splice(ri[i], 1);
                             g.tank.add();
+
+                            setTimeout(function(){ 
+                                var snd = new Audio("explosion.mp3");
+                                snd.volume = 1;
+                                snd.play();
+                            }, 500);
                         }
                     }
                 }
 
                 var snd = new Audio("bang.mp3");
+                snd.volume = 0.4;
                 snd.play();
             }
             if(e.keyCode == 87){
