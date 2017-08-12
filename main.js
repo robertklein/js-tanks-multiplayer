@@ -12,13 +12,15 @@ var g = {
         acc: 0,
         acc_step: 0.02,
         is_acc: 0,
+        firing: 0,
         canvas: null,
         context: null,
         tank: null,
         turret: null,
         move: null,
         interval: null,
-        target: {x:450, y:230, dist:0, angle:0}
+        target: {x:450, y:230, dist:0, angle:0},
+        debug: 0
     },
     t: [],
     tank: {
@@ -33,6 +35,11 @@ var g = {
                     s: null
                 });
             }, Math.floor(Math.random() * 10)*1000);
+        },
+        hit: function(index){
+            var t = g.t[index];
+            t.h = t.h - (t.s === null ? 0 : t.s);
+            return Math.max(0, t.h);
         }
     },
     e: [],
@@ -79,20 +86,28 @@ var g = {
     },
     draw: {
         tank: {
-            _one: function(x, y, a, ta, h){
+            _one: function(x, y, a, ta, h, primary){
+                primary = typeof primary === 'undefined' ? 0 : primary;
                 g.o.context.save();
 
                 g.o.context.translate(x, y);
                 g.o.context.rotate(Math.PI/180 * a);
                 g.o.context.drawImage(g.o.tank, -(g.o.tank.width/2), -(g.o.tank.height/2));
                 g.o.context.rotate(Math.PI/180 * ta);
-                g.o.context.drawImage(g.o.turret, -(g.o.tank.width/2), -(g.o.tank.height/2));
 
-                g.o.context.beginPath();
-                g.o.context.strokeStyle = 'rgba(0,0,0,0.1)';
-                g.o.context.moveTo(0, 0);
-                g.o.context.lineTo(2000, 0);
-                g.o.context.stroke();
+                if(primary && g.o.firing) g.o.context.globalAlpha = 0.5;
+                g.o.context.drawImage(g.o.turret, -(g.o.tank.width/2), -(g.o.tank.height/2));
+                if(primary && g.o.firing) g.o.context.globalAlpha = 1;
+
+
+                if(primary){
+                    g.o.context.beginPath();
+                    g.o.context.strokeStyle = 'rgba(255,0,0,0.8)';
+                    g.o.context.setLineDash([5, 50]);
+                    g.o.context.moveTo(0, 0);
+                    g.o.context.lineTo(2000, 0);
+                    g.o.context.stroke();
+                }
 
                 g.o.context.restore();
 
@@ -106,7 +121,7 @@ var g = {
                 g.o.context.restore();
             },
             my: function(){
-                this._one(g.o.x, g.o.y, g.o.angle, g.o.turret_angle, g.o.health);
+                this._one(g.o.x, g.o.y, g.o.angle, g.o.turret_angle, g.o.health, 1);
             },  
             all: function(){
                 for(var k in g.t){
@@ -116,12 +131,6 @@ var g = {
             },
             one: function(x, y, a, ta, h, i){
                 this._one(x, y, a, ta, h);
-
-                g.o.context.beginPath();
-                g.o.context.strokeStyle = 'rgba(0,0,0,0.1)';
-                g.o.context.moveTo(g.o.x,g.o.y);
-                g.o.context.lineTo(x, y);
-                g.o.context.stroke();
 
                 // doratat 2. bod na priamke
                 var total_angle = g.o.angle+g.o.turret_angle;
@@ -149,24 +158,34 @@ var g = {
                 x4 = x3 - k * (y2-y1);
                 y4 = y3 + k * (x2-x1);
 
+                if(g.o.debug){
+                    g.o.context.beginPath();
+                    g.o.context.strokeStyle = 'rgba(0,0,0,0.1)';
+                    g.o.context.moveTo(g.o.x, g.o.y);
+                    g.o.context.lineTo(x, y);
+                    g.o.context.stroke();
+                }
+
                 g.o.context.lineWidth = 1;
                 var s = Math.sqrt(Math.pow(Math.abs(x3-x4), 2) + Math.pow(Math.abs(y3-y4), 2));
                 g.t[i].s = null;
                 if(dir){
-                    if(s <= 45){
+                    if(s < 45){
                         g.o.context.strokeStyle = 'rgba(0,255,0,1)';
                         g.o.context.lineWidth = 3;
-                        g.t[i].s = s;
+                        g.t[i].s = Math.min(1, (Math.ceil((1-s/45)*10))/10);
                     }else
                         g.o.context.strokeStyle = 'rgba(0,0,255,0.2)';
                 } else {
                     g.o.context.strokeStyle = 'rgba(255,0,0,0.2)';
                 }
 
-                g.o.context.beginPath();
-                g.o.context.moveTo(x3, y3);
-                g.o.context.lineTo(x4, y4);
-                g.o.context.stroke();
+                if(g.o.debug){
+                    g.o.context.beginPath();
+                    g.o.context.moveTo(x3, y3);
+                    g.o.context.lineTo(x4, y4);
+                    g.o.context.stroke();
+                }
                 g.o.context.lineWidth = 1;
             }
         },
@@ -219,6 +238,9 @@ var g = {
             if(e.keyCode == 32){
                 e.preventDefault();
                 //var snd = new Audio("explosion.mp3");
+                if(g.o.firing) return false;
+                g.o.firing = 1;
+                setTimeout(function(){ g.o.firing = 0; }, 2000);
 
                 g.o.context.beginPath();
                 g.o.context.strokeStyle = 'rgba(255,0,0,0.9)';
@@ -234,8 +256,10 @@ var g = {
                 }
                 if(ri.length){
                     for(var i = ri.length - 1; i >= 0; i--){
-                        g.t.splice(ri[i], 1);
-                        g.tank.add();
+                        if(!g.tank.hit(ri[i])){
+                            g.t.splice(ri[i], 1);
+                            g.tank.add();
+                        }
                     }
                 }
 
