@@ -1,5 +1,6 @@
 var g = {
     o: {
+        ll: {},
         x: 450,
         y: 280,
         speed: 8,
@@ -82,7 +83,15 @@ var g = {
         window.addEventListener("keydown", g.handlers.keypress, false);
         window.addEventListener("keyup", g.handlers.keyup, false);
 
-        for(var i = 0; i<10; i++) g.tank.add();
+        //for(var i = 0; i<10; i++) g.tank.add();
+
+        g.o.ll = {
+            x: g.o.x,
+            y: g.o.y,
+            a: g.o.angle,
+            ta: g.o.turret_angle,
+            h: g.o.health
+        };
 
         g.o.move = setInterval(function(){
             g.draw.frame();
@@ -93,6 +102,8 @@ var g = {
         b: false,
         l: false,
         r: false,
+        tl: false,
+        tr: false,
         shift: false,
         fire: false,
         handle: function(){
@@ -104,10 +115,10 @@ var g = {
                 g.o.angle += g.o.rotation;
                 g.o.angle %= 360;
             }
-            if(this.shift && this.l){
+            if(this.shift && this.l || this.tl){
                 g.o.turret_angle -= g.o.turret_rotation;
             }
-            if(this.shift && this.r){
+            if(this.shift && this.r || this.tr){
                 g.o.turret_angle += g.o.turret_rotation;
             }
         }
@@ -268,6 +279,27 @@ var g = {
                     g.sound.playing_stone_crash = 1;
                 }
             }
+
+            if(g.s.cf++ >= 8) g.s.cf = 0;
+            if(!g.s.cf && (g.o.x != g.o.ll.x || g.o.y != g.o.ll.y || g.o.angle != g.o.ll.a || g.o.turret_angle != g.o.ll.ta)){
+                // if(g.s.obj !== null)
+                g.s.obj.emit('c2s', [
+                    1,
+                    Math.round(g.o.x),
+                    Math.round(g.o.y),
+                    g.o.angle,
+                    g.o.turret_angle,
+                    g.o.health
+                ]);
+
+                g.o.ll = {
+                    x: g.o.x,
+                    y: g.o.y,
+                    a: g.o.angle,
+                    ta: g.o.turret_angle,
+                    h: g.o.health
+                };
+            }
             
             g.draw.element.all(0);
             g.draw.tank.all();
@@ -297,6 +329,12 @@ var g = {
             }
             if(e.keyCode == 68){
                 g.keys.r = false;
+            }
+            if(e.keyCode == 37){
+                g.keys.tl = false;
+            }
+            if(e.keyCode == 39){
+                g.keys.tr = false;
             }
             if(e.keyCode == 16){
                 g.keys.shift = false;
@@ -387,6 +425,12 @@ var g = {
             }
             if(e.keyCode == 16){
                 g.keys.shift = true;
+            }
+            if(e.keyCode == 37){
+                g.keys.tl = true;
+            }
+            if(e.keyCode == 39){
+                g.keys.tr = true;
             }
         }
     }
