@@ -173,8 +173,10 @@ var g = {
 
                 g.o.context.save();
                 g.o.context.beginPath();
-                g.o.context.strokeStyle = 'rgba(0,255,0,0.35)';
-                g.o.context.lineWidth = 8;
+                if(h > 0.7) g.o.context.strokeStyle = 'rgba(0,255,0,0.4)';
+                else if(h > 0.4) g.o.context.strokeStyle = 'rgba(244, 217, 66,0.7)';
+                else g.o.context.strokeStyle = 'rgba(255,0,0, 0.9)';
+                g.o.context.lineWidth = 14;
                 g.o.context.moveTo(x - 50, y - 70);
                 g.o.context.lineTo(x - 50 + (h * 100), y - 70);
                 g.o.context.stroke();
@@ -393,6 +395,7 @@ var g = {
                             g.s.obj.emit('c2s', [tid, 'tr', []]);
                             g.tank.remove(tid);
 
+                            g.s.obj.emit('c2s', [g.s.id, 'explosion', []]);
                             setTimeout(function(){
                                 var snd = new Audio("explosion.mp3");
                                 snd.volume = 1;
@@ -412,8 +415,10 @@ var g = {
                     }
                 }
 
+                g.s.obj.emit('c2s', [g.s.id, 'bang', []]);
+
                 var snd = new Audio("bang.mp3");
-                snd.volume = 0.4;
+                snd.volume = 1;
                 snd.play();
             }
             if(e.keyCode == 87){

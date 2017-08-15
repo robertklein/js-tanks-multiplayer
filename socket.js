@@ -50,14 +50,36 @@ g.s = {
                         s: null
                     };
                 }
+            } else if(d[1] == 'bang'){
+                var snd = new Audio("bang.mp3");
+                snd.volume = 0.2;
+                snd.play();
+            } else if(d[1] == 'explosion'){
+                setTimeout(function(){
+                    var snd = new Audio("explosion.mp3");
+                    snd.volume = 1;
+                    snd.play();
+                }, 500);
             } else if(d[1] == 'hit'){
                 if(parseInt(d[2][0]) == g.s.id){
                     console.log(1123123);
                     g.o.health = d[2][1];
+
+                    setTimeout(function(){
+                        var snd = new Audio("fire_impact"+Math.ceil(Math.random()*2)+".mp3");
+                        snd.volume = 1;
+                        snd.play();
+                    }, 200);
                 } else if(typeof g.tm[d[2][0]] === 'undefined'){
                     console.log('nothing');
                 } else {
                     g.t[g.tm[d[2][0]]].h = d[2][1];
+
+                    setTimeout(function(){
+                        var snd = new Audio("fire_impact"+Math.ceil(Math.random()*2)+".mp3");
+                        snd.volume = 0.2;
+                        snd.play();
+                    }, 200);
                 }
             }
         });
