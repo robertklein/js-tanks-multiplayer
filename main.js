@@ -23,19 +23,35 @@ var g = {
         target: {x:450, y:230, dist:0, angle:0},
         debug: 0
     },
+    tm: {},
     t: [],
     tank: {
-        add: function(){
-            setTimeout(function(){
+        add: function(tid, d){
+            if(typeof d !== 'undefined'){
                 g.t.push({
-                    x: Math.floor(Math.random() * 1800) + 100,
-                    y: Math.floor(Math.random() * 900) + 100,
-                    a: Math.floor(Math.random() * 359) + 0,
-                    ta:0,
-                    h:1,
+                    x: d[0],
+                    y: d[1],
+                    a: d[2],
+                    ta: d[3],
+                    h: d[4],
                     s: null
                 });
-            }, Math.floor(Math.random() * 10)*1000);
+                g.tm[tid] = g.t.length-1;
+            } else {
+                setTimeout(function(){
+                    g.t.push({
+                        x: Math.floor(Math.random() * 1800) + 100,
+                        y: Math.floor(Math.random() * 900) + 100,
+                        a: Math.floor(Math.random() * 359) + 0,
+                        ta:0,
+                        h:1,
+                        s: null
+                    });
+                }, Math.floor(Math.random() * 10)*1000);
+            }
+        },
+        remove: function(tid){
+            g.t.splice(g.tm[tid], 1);
         },
         hit: function(index){
             var t = g.t[index];
@@ -95,7 +111,10 @@ var g = {
 
         g.o.move = setInterval(function(){
             g.draw.frame();
-        }, 30);
+        }, 33);
+        // window.requestAnimationFrame(function(){
+        //     g.draw.frame();
+        // });
     },
     keys:{
         f: false,
@@ -280,16 +299,18 @@ var g = {
                 }
             }
 
-            if(g.s.cf++ >= 8) g.s.cf = 0;
+            g.s.cf = 0;
+            //if(g.s.cf++ >= 1) g.s.cf = 0;
             if(!g.s.cf && (g.o.x != g.o.ll.x || g.o.y != g.o.ll.y || g.o.angle != g.o.ll.a || g.o.turret_angle != g.o.ll.ta)){
                 // if(g.s.obj !== null)
                 g.s.obj.emit('c2s', [
-                    1,
-                    Math.round(g.o.x),
-                    Math.round(g.o.y),
-                    g.o.angle,
-                    g.o.turret_angle,
-                    g.o.health
+                    g.s.id, 'm', [
+                        Math.round(g.o.x),
+                        Math.round(g.o.y),
+                        g.o.angle,
+                        g.o.turret_angle,
+                        g.o.health
+                    ]
                 ]);
 
                 g.o.ll = {
@@ -346,7 +367,8 @@ var g = {
                 e.preventDefault();
                 //var snd = new Audio("explosion.mp3");
                 if(g.o.firing) return false;
-                g.o.firing = 1;                setTimeout(function(){ g.o.firing = 0; }, 2000);
+                g.o.firing = 1;
+                setTimeout(function(){ g.o.firing = 0; }, 2000);
 
                 g.o.context.beginPath();
                 g.o.context.strokeStyle = 'rgba(255,0,0,0.9)';
@@ -362,9 +384,14 @@ var g = {
                 }
                 if(ri.length){
                     for(var i = ri.length - 1; i >= 0; i--){
-                        if(!g.tank.hit(ri[i])){
-                            g.t.splice(ri[i], 1);
-                            g.tank.add();
+                        var hitko = g.tank.hit(ri[i]);
+                        if(!hitko){
+                            //g.t.splice(ri[i], 1);
+                            //g.tank.add();
+                            var tid = null;
+                            for(var ij in g.tm) if(g.tm[ij]==ri[i]) tid = ij;
+                            g.s.obj.emit('c2s', [tid, 'tr', []]);
+                            g.tank.remove(tid);
 
                             setTimeout(function(){
                                 var snd = new Audio("explosion.mp3");
@@ -372,6 +399,10 @@ var g = {
                                 snd.play();
                             }, 500);
                         } else {
+                            var tid = null;
+                            for(var ij in g.tm) if(g.tm[ij]==ri[i]) tid = ij;
+                            g.s.obj.emit('c2s', [g.s.id, 'hit', [tid, hitko]]);
+
                             setTimeout(function(){
                                 var snd = new Audio("fire_impact"+Math.ceil(Math.random()*2)+".mp3");
                                 snd.volume = 0.6;
