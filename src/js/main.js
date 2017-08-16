@@ -81,20 +81,20 @@ var g = {
         g.o.canvas = document.getElementById("canvas");
         g.o.context = g.o.canvas.getContext("2d");
         g.o.tank = new Image();
-        g.o.tank.src="tank_body.png";
+        g.o.tank.src="img/tank_body.png";
         g.o.turret = new Image();
-        g.o.turret.src="tank_turret.png";
+        g.o.turret.src="img/tank_turret.png";
         g.o.background = new Image();
-        g.o.background.src = "desert.jpg";
+        g.o.background.src = "img/desert.jpg";
         g.o.background.onload = function(){
             g.o.context.drawImage(g.o.background,0,0);   
         }
         g.o.stone = new Image();
-        g.o.stone.src="stone.png";
+        g.o.stone.src="img/stone.png";
         g.o.explosion = new Image();
-        g.o.explosion.src="explosion.png";
+        g.o.explosion.src="img/explosion.png";
         g.o.tree = new Image();
-        g.o.tree.src="tree1.png";
+        g.o.tree.src="img/tree1.png";
 
         window.addEventListener("keydown", g.handlers.keypress, false);
         window.addEventListener("keyup", g.handlers.keyup, false);
@@ -292,7 +292,7 @@ var g = {
                     g.o.y = g.o.oy;
                     g.o.acc = 0;
                     if(!g.sound.playing_stone_crash){
-                        var snd = new Audio("stone_crash.mp3");
+                        var snd = new Audio("sound/stone_crash.mp3");
                         snd.volume = 0.2;
                         snd.play();
                         setTimeout(function(){ g.sound.playing_stone_crash = 0; }, 1000);
@@ -367,7 +367,7 @@ var g = {
             //console.log(e.keyCode)
             if(e.keyCode == 32){
                 e.preventDefault();
-                //var snd = new Audio("explosion.mp3");
+                //var snd = new Audio("sound/explosion.mp3");
                 if(g.o.firing) return false;
                 g.o.firing = 1;
                 setTimeout(function(){ g.o.firing = 0; }, 2000);
@@ -397,7 +397,7 @@ var g = {
 
                             g.s.obj.emit('c2s', [g.s.id, 'explosion', []]);
                             setTimeout(function(){
-                                var snd = new Audio("explosion.mp3");
+                                var snd = new Audio("sound/explosion.mp3");
                                 snd.volume = 1;
                                 snd.play();
                             }, 500);
@@ -407,7 +407,7 @@ var g = {
                             g.s.obj.emit('c2s', [g.s.id, 'hit', [tid, hitko]]);
 
                             setTimeout(function(){
-                                var snd = new Audio("fire_impact"+Math.ceil(Math.random()*2)+".mp3");
+                                var snd = new Audio("sound/fire_impact"+Math.ceil(Math.random()*2)+".mp3");
                                 snd.volume = 0.6;
                                 snd.play();
                             }, 200);
@@ -417,7 +417,7 @@ var g = {
 
                 g.s.obj.emit('c2s', [g.s.id, 'bang', []]);
 
-                var snd = new Audio("bang.mp3");
+                var snd = new Audio("sound/bang.mp3");
                 snd.volume = 1;
                 snd.play();
             }
