@@ -1,14 +1,28 @@
 <!DOCTYPE html>
 <html>
     <head>
-    	<title>hello world</title>
+    	<title>WoT - The End</title>
     	<meta charset="UTF-8">
 	    <style type="text/css">
+        body {
+            background: #333333 url('img/bomb.svg') no-repeat center bottom fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+        h1 {
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            color: #ffffff;
+            margin: 0;
+        }
     	</style>
 	</head>
 	<body>
-        <p>si prehral</p>
-        <a href="index.html">new game</a>
+        <h1>You are down! We repair your machine and send you back ...</h1>
 	</body>
     <script>
         setTimeout(function(){
@@ -16,5 +30,8 @@
             snd.volume = 1;
             snd.play();
         }, 100);
+        setTimeout(function(){
+            window.location = 'index.html';
+        }, 2000);
     </script>
 </html>

@@ -1,6 +1,8 @@
 var g = {
     o: {
         ll: {},
+        map_x: 1870,
+        map_y: 910,
         x: 450,
         y: 280,
         speed: 8,
@@ -79,6 +81,8 @@ var g = {
     },
     init: function(){
         g.o.canvas = document.getElementById("canvas");
+        g.o.canvas.setAttribute("width", g.o.map_x);
+        g.o.canvas.setAttribute("height", g.o.map_y);
         g.o.context = g.o.canvas.getContext("2d");
         g.o.tank = new Image();
         g.o.tank.src="img/tank_body.png";
@@ -87,7 +91,7 @@ var g = {
         g.o.background = new Image();
         g.o.background.src = "img/desert.jpg";
         g.o.background.onload = function(){
-            g.o.context.drawImage(g.o.background,0,0);   
+            g.o.context.drawImage(g.o.background,0,0);
         }
         g.o.stone = new Image();
         g.o.stone.src="img/stone.png";
@@ -184,7 +188,7 @@ var g = {
             },
             my: function(){
                 this._one(g.o.x, g.o.y, g.o.angle, g.o.turret_angle, g.o.health, 1);
-            },  
+            },
             all: function(){
                 for(var k in g.t){
                     var t = g.t[k];
@@ -271,7 +275,7 @@ var g = {
             }
         },
         frame: function(){
-            g.o.context.clearRect(0, 0, 1870, 950);
+            g.o.context.clearRect(0, 0, g.o.map_x, g.o.map_y);
             g.o.context.drawImage(g.o.background,0,0);
 
             g.keys.handle();
@@ -280,6 +284,17 @@ var g = {
             g.o.oy = g.o.y;
             g.o.x += (g.o.speed*g.o.acc*g.o.mod) * Math.cos(Math.PI/180 * g.o.angle);
             g.o.y += (g.o.speed*g.o.acc*g.o.mod) * Math.sin(Math.PI/180 * g.o.angle);
+
+            if (g.o.x >= g.o.map_x) {
+                g.o.x = g.o.map_x;
+            } else if (g.o.y >= g.o.map_y) {
+                g.o.y = g.o.map_y;
+            } else if (g.o.x <= 0) {
+                g.o.x = 0;
+            } else if (g.o.y <= 0) {
+                g.o.y = 0;
+            }
+
             var x1 = g.o.x;
             var y1 = g.o.y;
             for(var i in g.e.stone){
@@ -323,7 +338,7 @@ var g = {
                     h: g.o.health
                 };
             }
-            
+
             g.draw.element.all(0);
             g.draw.tank.all();
             g.draw.tank.my();
