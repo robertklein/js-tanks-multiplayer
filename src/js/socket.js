@@ -41,14 +41,10 @@ g.s = {
                 if(typeof g.tm[d[0]] === 'undefined'){
                     g.tank.add(d[0], d[2]);
                 } else {
-                    g.t[g.tm[d[0]]] = {
-                        x: d[2][0],
-                        y: d[2][1],
-                        a: d[2][2],
-                        ta: d[2][3],
-                        h: d[2][4],
-                        s: null
-                    };
+                    g.t[g.tm[d[0]]].x = d[2][0];
+                    g.t[g.tm[d[0]]].y = d[2][1];
+                    g.t[g.tm[d[0]]].a = d[2][2];
+                    g.t[g.tm[d[0]]].ta = d[2][3];
                 }
             } else if(d[1] == 'bang'){
                 var snd = new Audio("sound/bang.mp3");
