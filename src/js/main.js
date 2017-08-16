@@ -287,10 +287,11 @@ var g = {
 
             if (g.o.x >= g.o.map_x) {
                 g.o.x = g.o.map_x;
-            } else if (g.o.y >= g.o.map_y) {
-                g.o.y = g.o.map_y;
             } else if (g.o.x <= 0) {
                 g.o.x = 0;
+            }
+            if (g.o.y >= g.o.map_y) {
+                g.o.y = g.o.map_y;
             } else if (g.o.y <= 0) {
                 g.o.y = 0;
             }
