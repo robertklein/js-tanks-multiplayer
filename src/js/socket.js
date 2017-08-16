@@ -3,7 +3,8 @@ g.s = {
     cf: 10,
     id: null,
     init: function(){
-        this.obj = io('http://192.168.102.85:3003/tanks');
+        this.obj = io('http://kdevelop.sk:3003/tanks');
+        // this.obj = io('http://192.168.102.85:3003/tanks');
         // this.obj = io('http://192.168.0.106:3003/tanks');
         // this.obj = io('http://95.170.246.53:3003/tanks');
         this.obj.on('connect', function () {
