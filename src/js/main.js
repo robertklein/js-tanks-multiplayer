@@ -129,6 +129,7 @@ var g = {
         tr: false,
         shift: false,
         fire: false,
+        nitro: false,
         handle: function(){
             if(!this.shift && this.l){
                 g.o.angle -= g.o.rotation;
@@ -282,7 +283,7 @@ var g = {
 
             g.o.ox = g.o.x;
             g.o.oy = g.o.y;
-            g.o.x += (g.o.speed*g.o.acc*g.o.mod) * Math.cos(Math.PI/180 * g.o.angle);
+            g.o.x += (g.o.speed*(g.keys.nitro ? 2 : 1)*g.o.acc*g.o.mod) * Math.cos(Math.PI/180 * g.o.angle);
             g.o.y += (g.o.speed*g.o.acc*g.o.mod) * Math.sin(Math.PI/180 * g.o.angle);
 
             if (g.o.x >= g.o.map_x) {
@@ -377,6 +378,9 @@ var g = {
             }
             if(e.keyCode == 16){
                 g.keys.shift = false;
+            }
+            if(e.keyCode == 48){
+                g.keys.nitro = false;
             }
         },
         keypress: function(e){
@@ -483,6 +487,9 @@ var g = {
             }
             if(e.keyCode == 39){
                 g.keys.tr = true;
+            }
+            if(e.keyCode == 48){
+                g.keys.nitro = true;
             }
         }
     }
