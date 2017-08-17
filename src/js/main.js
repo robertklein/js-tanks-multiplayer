@@ -71,6 +71,15 @@ var g = {
             {x: 660, y: 400, r: 80},
             {x: 400, y: 500, r: 120}
         ],
+        rock: [
+            {x: 1319, y: 727, r: 58, a:45},
+            {x: 1379, y: 624, r: 58, a:45},
+            {x: 1424, y: 552, r: 58, a:45},
+            {x: 1258, y: 165, r: 75},
+            {x: 1568, y: 223, r: 75},
+            {x: 933, y: 555, r: 60},
+            {x: 500, y: 750, r: 60}
+        ],
         tree: [
             {x: 900, y: 280, r: 150},
             {x: 700, y: 660, r: 90},
@@ -95,6 +104,8 @@ var g = {
         }
         g.o.stone = new Image();
         g.o.stone.src="img/stone.png";
+        g.o.rock = new Image();
+        g.o.rock.src="img/rock.png";
         g.o.explosion = new Image();
         g.o.explosion.src="img/explosion.png";
         g.o.tree = new Image();
@@ -270,6 +281,8 @@ var g = {
                 g.o.context.save();
                 if(cat == 'tree') g.o.context.globalAlpha = 0.75;
                 g.o.context.translate(obj.x, obj.y);
+                if(typeof obj.a !== 'undefined')
+                    g.o.context.rotate(Math.PI/180 * obj.a);
                 g.o.context.drawImage(g.o[cat], -(obj.r), -(obj.r), obj.r*2, obj.r*2);
                 if(cat == 'tree') g.o.context.globalAlpha = 1;
                 g.o.context.restore();
@@ -305,6 +318,24 @@ var g = {
                 var dist = Math.sqrt(Math.pow(Math.abs(x1-x2), 2) + Math.pow(Math.abs(y1-y2), 2));
                 //console.log(i + ': ' + dist)
                 if(dist < (45 + 0.55*g.e.stone[i].r)){
+                    g.o.x = g.o.ox;
+                    g.o.y = g.o.oy;
+                    g.o.acc = 0;
+                    if(!g.sound.playing_stone_crash){
+                        var snd = new Audio("sound/stone_crash.mp3");
+                        snd.volume = 0.2;
+                        snd.play();
+                        setTimeout(function(){ g.sound.playing_stone_crash = 0; }, 1000);
+                    }
+                    g.sound.playing_stone_crash = 1;
+                }
+            }
+            for(var i in g.e.rock){
+                var x2 = g.e.rock[i].x;
+                var y2 = g.e.rock[i].y;
+                var dist = Math.sqrt(Math.pow(Math.abs(x1-x2), 2) + Math.pow(Math.abs(y1-y2), 2));
+                //console.log(i + ': ' + dist)
+                if(dist < (45 + 0.9*g.e.rock[i].r)){
                     g.o.x = g.o.ox;
                     g.o.y = g.o.oy;
                     g.o.acc = 0;
